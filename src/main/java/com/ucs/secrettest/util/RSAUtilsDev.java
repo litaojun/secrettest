@@ -1,15 +1,20 @@
 package com.ucs.secrettest.util;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.interfaces.RSAPrivateKey;
@@ -17,13 +22,17 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-
+//import org.spongycastle.openssl.jcajce.JcaPEMKeyConverter;
 import javax.crypto.Cipher;
 
+import org.apache.commons.io.FileUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.PEMKeyPair;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 
 import sun.misc.BASE64Decoder;
-
 
 
 /**
@@ -68,6 +77,25 @@ public class RSAUtilsDev {
         bis.close();
         return (Key) object;
     }
+    
+    
+    public static void storeToPem(Object key, String file) throws IOException {
+        JcaPEMWriter pemWriter = new JcaPEMWriter(new OutputStreamWriter(FileUtils.openOutputStream(new File(file))));
+        pemWriter.writeObject(key);
+        pemWriter.close();
+    }
+    
+    public static PrivateKey getPemPrivate(String fileName) throws IOException {
+        PEMParser pp = new PEMParser(new FileReader(fileName));
+        PEMKeyPair pemKeyPair = (PEMKeyPair) pp.readObject();
+        return new JcaPEMKeyConverter().getKeyPair(pemKeyPair).getPrivate();
+   }
+    
+    public static PublicKey getPemPublic(String fileName) throws IOException {
+        PEMParser pp = new PEMParser(new FileReader(fileName));
+        PEMKeyPair pemKeyPair = (PEMKeyPair) pp.readObject();
+        return new JcaPEMKeyConverter().getKeyPair(pemKeyPair).getPublic();
+   }
     /**
      * <P>
      * 私钥解密

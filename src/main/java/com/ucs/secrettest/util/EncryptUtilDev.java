@@ -81,7 +81,7 @@ public class EncryptUtilDev {
 		}
 		return des;
 	}
-	
+
 	public static String base64Encrypt(byte[] bts){
 		return new BASE64Encoder().encode(bts);
 	}
